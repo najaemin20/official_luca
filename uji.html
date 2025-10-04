@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LUCA'S</title>
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    /* Background partikel */
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Tombol hamburger kiri atas - disembunyikan awalnya */
+    .menu-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      border: none;
+      color: white;
+      font-size: 26px;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      cursor: pointer;
+      z-index: 3;
+      display: none; /* disembunyikan dulu */
+    }
+
+    .menu-popup {
+      position: fixed;
+      top: 70px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 15px;
+      border-radius: 10px;
+      z-index: 3;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .menu-popup a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    .menu-popup a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Loading screen */
+    #loading-screen {
+      text-align: center;
+      position: absolute;
+      width: 100%;
+      top: 40%;
+      z-index: 1;
+    }
+
+    .ios-spinner {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      margin: 0 auto 20px;
+    }
+
+    .ios-spinner div {
+      transform-origin: 25px 25px;
+      animation: ios-spin 1.2s linear infinite;
+    }
+
+    .ios-spinner div:after {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 2px;
+      left: 23px;
+      width: 4px;
+      height: 10px;
+      border-radius: 20%;
+      background: #fff;
+    }
+
+    .ios-spinner div:nth-child(n) {
+      transform: rotate(calc(30deg * var(--i)));
+      animation-delay: calc(-0.1s * var(--i));
+    }
+
+    @keyframes ios-spin {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .loading-text {
+      font-size: 1.2em;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .dots::after {
+      content: '';
+      animation: dots 1s infinite steps(4);
+    }
+
+    @keyframes dots {
+      0% { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
+      100% { content: ''; }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #welcome-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    #welcome-text {
+      font-size: 6vw;
+      font-weight: bold;
+      color: #eee;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    #welcome-container.fade-out {
+      animation: fadeOutUp 1s forwards;
+    }
+
+    @keyframes fadeOutUp {
+      to {
+        opacity: 0;
+        transform: translateY(-100px);
+        pointer-events: none;
+      }
+    }
+
+    #main-content {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+      z-index: 1;
+    }
+
+    .after-welcome {
+      margin-top: 30px;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    .after-welcome.visible {
+      opacity: 1;
+    }
+
+    .logo-title {
+      margin-bottom: 10px;
+      font-size: 1.7em;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .logo {
+      margin: 0 auto 30px;
+      width: 80px;
+      height: 80px;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .menu a {
+      text-decoration: none;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .menu button {
+      width: 100%;
+      padding: 1em;
+      font-size: 1em;
+      font-weight: 700;
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .menu button:hover {
+      background: rgba(255, 255, 255, 0.35);
+      color: #222;
+      transform: scale(1.05);
+    }
+
+    .menu button:active {
+      transform: scale(0.95);
+    }
+
+    .menu button:nth-child(1) { animation-delay: 0.3s; }
+    .menu button:nth-child(2) { animation-delay: 0.5s; }
+    .menu button:nth-child(3) { animation-delay: 0.7s; }
+    .menu button:nth-child(4) { animation-delay: 0.9s; }
+    .menu button:nth-child(5) { animation-delay: 1.1s; }
+    .menu button:nth-child(6) { animation-delay: 1.3s; }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Popup promo diskon */
+    #promo-popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #222;
+      padding: 20px 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      z-index: 10;
+      max-width: 300px;
+      display: none;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    #promo-popup h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 1.3em;
+      color: #e91e63;
+    }
+
+    #promo-popup p {
+      margin: 0 0 10px 0;
+      font-weight: 600;
+    }
+
+    #promo-popup button.close-btn {
+      background: #e91e63;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    #promo-popup button.close-btn:hover {
+      background: #c2185b;
+    }
+
+    @media (max-width: 600px) {
+      #welcome-text {
+        font-size: 9vw;
+      }
+
+      .menu button {
+        font-size: 1em;
+        padding: 0.8em;
+      }
+
+      #promo-popup {
+        max-width: 90vw;
+        bottom: 10px;
+        right: 5vw;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Partikel -->
+  <div id="particles-js"></div>
+
+  <!-- Tombol Menu Hamburger -->
+  <button class="menu-toggle" onclick="togglePopup()">
+    <i class='bx bx-menu'></i>
+  </button>
+
+  <!-- Menu Pop-up -->
+  <div class="menu-popup" id="popupMenu">
+    <a href="channel-utama.html"><i class='bx bx-link'></i> Channel Utama</a>
+    <a href="channel-rate.html"><i class='bx bx-star'></i> Channel Rate</a>
+    <a href="bot-free.html"><i class='bx bx-bot'></i> Bot Free</a>
+    <a href="bot-berbayar.html"><i class='bx bx-dollar-circle'></i> Bot Berbayar</a>
+    <a href="admin.html"><i class='bx bx-user'></i> Admin</a>
+    <a href="dashboard-admin.html"><i class='bx bx-dashboard'></i> Dashboard Admin</a>
+  </div>
+
+  <!-- Loading -->
+  <div id="loading-screen">
+    <div class="ios-spinner">
+      <div style="--i:0"></div><div style="--i:1"></div><div style="--i:2"></div>
+      <div style="--i:3"></div><div style="--i:4"></div><div style="--i:5"></div>
+      <div style="--i:6"></div><div style="--i:7"></div><div style="--i:8"></div>
+      <div style="--i:9"></div><div style="--i:10"></div><div style="--i:11"></div>
+    </div>
+    <p class="loading-text">Loading<span class="dots"></span></p>
+  </div>
+
+  <!-- Welcome -->
+  <div id="welcome-container" class="hidden">
+    <h1 id="welcome-text"></h1>
+  </div>
+
+  <!-- Main Content -->
+  <div id="main-content" class="hidden">
+    <div class="after-welcome" id="after-welcome">
+      <div class="logo-title">Official Luca's</div>
+      <div class="logo">
+        <img src="https://tse1.mm.bing.net/th/id/OIP.w1HqUXZ-NDorJqa5OV46EwHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Logo Luca's" />
+      </div>
+      <div class="menu">
+        <a href="channel-utama.html"><button>Channel Utama</button></a>
+        <a href="channel-rate.html"><button>Channel Rate</button></a>
+        <a href="bot-free.html"><button>Bot Free</button></a>
+        <a href="bot-berbayar.html"><button>Bot Berbayar</button></a>
+        <a href="admin.html"><button>Admin</button></a>
+        <a href="dashboard-admin.html"><button>Dashboard Admin</button></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup Promo Diskon -->
+  <div id="promo-popup">
+    <h3>🎉 Promo Spesial!</h3>
+    <p>Dapatkan diskon 20% untuk pembelian pertama kamu.</p>
+    <button class="close-btn" onclick="closePromo()">Tutup</button>
+  </div>
+
+  <!-- JS: Partikel -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script>
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+        "color": { "value": "#ffffff" },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5 },
+        "size": { "value": 3, "random": true },
+        "line_linked": {
+          "enable": true,
+          "distance": 150,
+          "color": "#ffffff",
+          "opacity": 0.3,
+          "width": 1
+        },
+        "move": {
+          "enable": true,
+          "speed": 1,
+          "direction": "none",
+          "out_mode": "out"
+        }
+      },
+      "interactivity": {
+        "events": {
+          "onhover": { "enable": true, "mode": "repulse" },
+          "onclick": { "enable": true, "mode": "push" }
+        },
+        "modes": {
+          "repulse": { "distance": 100, "duration": 0.4 },
+          "push": { "particles_nb": 4 }
+        }
+      },
+      "retina_detect": true
+    });
+  </script>
+
+  <!-- JS: Welcome dan toggle -->
+  <script>
+    setTimeout(() => {
+      document.getElementById("loading-screen").style.display = "none";
+      document.getElementById("welcome-container").classList.remove("hidden");
+      startWelcomeAnimation();
+    }, 3000);
+
+    function startWelcomeAnimation() {
+      const welcomeText = "Selamat Datang";
+      const welcomeEl = document.getElementById("welcome-text");
+      const afterWelcome = document.getElementById("after-welcome");
+      const welcomeContainer = document.getElementById("welcome-container");
+      const mainContent = document.getElementById("main-content");
+      const menuToggle = document.querySelector(".menu-toggle"); // tombol hamburger
+      const promoPopup = document.getElementById("promo-popup");
+      let index = 0;
+
+      const typeInterval = setInterval(() => {
+        if (index < welcomeText.length) {
+          welcomeEl.textContent += welcomeText.charAt(index);
+          index++;
+        } else {
+          clearInterval(typeInterval);
+          setTimeout(() => {
+            welcomeContainer.classList.add("fade-out");
+            setTimeout(() => {
+              mainContent.classList.remove("hidden");
+              afterWelcome.classList.add("visible");
+
+              // Tampilkan tombol hamburger setelah welcome selesai
+              menuToggle.style.display = "block";
+
+              // Tampilkan popup promo diskon
+              promoPopup.style.display = "block";
+
+            }, 1000);
+          }, 800);
+        }
+      }, 100);
+    }
+
+    function togglePopup() {
+      const menu = document.getElementById("popupMenu");
+      menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+    }
+
+    function closePromo() {
+      document.getElementById("promo-popup").style.display = "none";
+    }
+
+    // Tutup popup jika klik di luar menu hamburger
+    document.addEventListener("click", function(event) {
+      const toggle = document.querySelector(".menu-toggle");
+      const popup = document.getElementById("popupMenu");
+      if (!toggle.contains(event.target) && !popup.contains(event.target)) {
+        popup.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
